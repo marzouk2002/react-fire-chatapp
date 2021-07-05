@@ -1,27 +1,17 @@
 import React, { useRef, useState } from 'react'
+import { useSelector } from 'react-redux';
 import './App.css';
-
-import firebase from 'firebase/app';
-import 'firebase/firestore'
-import 'firebase/auth'
 
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
 
-firebase.initializeApp({
-  apiKey: "AIzaSyB584UiluEGaiuxIOkbS72rpod-Cd2enzY",
-  authDomain: "react-chat-app-1136f.firebaseapp.com",
-  projectId: "react-chat-app-1136f",
-  storageBucket: "react-chat-app-1136f.appspot.com",
-  messagingSenderId: "1039014190091",
-  appId: "1:1039014190091:web:34303796ed52c304923b0e",
-  measurementId: "G-NXMQS34RWX"
-})
-
-const auth = firebase.auth()
-const firestore = firebase.firestore()
 
 function App() {
+const { auth } = useSelector(state => {
+  console.log(state)
+  return state
+})
+
   const [user] = useAuthState(auth) 
   return (
     <div className="App">
@@ -36,6 +26,7 @@ function App() {
 }
 
 function SignIn() {
+  const { firebase, auth } = useSelector(state => state)
 
   const sigInWithGoogle = () => {
     const provider = new firebase.auth.GoogleAuthProvider();
@@ -48,12 +39,16 @@ function SignIn() {
 }
 
 function SignOut() {
+  const { auth } = useSelector(state => state)
+
   return auth.currentUser && (
     <button onClick={() => auth.signOut()}>Sign Out</button>
   )
 }
 
 function ChatRoom() {
+  const { firebase, firestore, auth } = useSelector(state => state)
+
 
   const messagesRef = firestore.collection('messages');
   const query = messagesRef.orderBy('createdAt').limit(25)
@@ -96,6 +91,8 @@ function ChatRoom() {
 }
 
 function ChatMessage({message}) {
+const { auth } = useSelector(state => state)
+
   const { text, uid, photoURL } = message
   const messageClass = uid === auth.currentUser.uid ? 'sent' : 'received';
 
